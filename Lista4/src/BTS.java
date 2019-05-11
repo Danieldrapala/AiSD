@@ -1,12 +1,32 @@
-public class BTS {
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.regex.Pattern;
 
+public class BTS implements Trees{
+
+
+    @Override
+    public void load(Path p) {
+        String data = "";
+
+        try {
+            data = new String(Files.readAllBytes(p));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (String s: data.split("[\\p{P} \\s]")){
+            if (s.equals("")) continue;
+                insert(s);
+        }
+    }
 
     private class BTSNode
     {
         BTSNode  parent;
         BTSNode  left;
         BTSNode  right;
-        int key;
         String value;
         BTSNode(String s)
         {
@@ -20,31 +40,37 @@ public class BTS {
     }
     /* Dodawanie elementów */
     public void insert(String val) {
-        if(root == null)
-            root = new BTSNode(val);
-        else {
-            BTSNode actual = root;
-            BTSNode parent = null;
-            while(actual != null) {
-                parent = actual;
-                actual = (actual.value.compareTo(val) > 0) ? actual.left : actual.right;
-            }
-            if(actual.value.compareTo(val) > 0) {
-                parent.left = new BTSNode(val);
-                parent.left.parent = parent;
-            }
-            else {
-                parent.right = new BTSNode(val);
-                parent.right.parent = parent;
+        while(!Pattern.matches("[a-zA-Z]",String.valueOf(val.charAt(0)))||!Pattern.matches("[a-zA-Z]",String.valueOf(val.charAt(val.length()-1)))) {
+            if (!Pattern.matches("[a-zA-Z]", String.valueOf(val.charAt(0))))
+                val = val.substring(1);
+            if (!Pattern.matches("[a-zA-Z]", String.valueOf(val.charAt(val.length() - 1)))) {
+                val = val.substring(0, val.length() - 1);
             }
         }
-    }
+            if (root == null)
+                root = new BTSNode(val);
+            else {
+                BTSNode actual = root;
+                BTSNode parent = null;
+                while (actual != null) {
+                    parent = actual;
+                    actual = (actual.value.compareTo(val) > 0) ? actual.left : actual.right;
+                }
+                if (parent.value.compareTo(val) > 0) { // actual zmiana
+                    parent.left = new BTSNode(val);
+                    parent.left.parent = parent;
+                } else {
+                    parent.right = new BTSNode(val);
+                    parent.right.parent = parent;
+                }
+            }
+        }
     /**********************     end BSTInsert       *******************************/
 
     /* Wyszukiwanie elementu */
     public BTSNode search(String val )   throws TreeException{
         BTSNode actual = root;
-        while(actual != null && actual.value != val)
+        while(actual != null && actual.value.equals(val))
             actual = (actual.value.compareTo(val) >0) ? actual.left : actual.right;
         if(actual == null)
             throw new TreeException("Not Found Key");
@@ -64,17 +90,14 @@ public class BTS {
             if(tmp.right != null)
                 tmp.right.parent = tmp;
         }
-        else
-            tmp = (node.left != null) ? node.left : node.right;
-        if(tmp != null)
-        // tmp.parent = parent;
-            node.parent = parent;
-        if(parent == null)
-            root = tmp;
-        else if(parent.left == node)
-            parent.left = tmp;
-        else
-            parent.right = tmp;
+        else  tmp = (node.left != null) ? node.left : node.right;
+
+        if(tmp != null) tmp.parent = parent;
+
+        if(parent == null) root = tmp;
+        else if(parent.left == node)  parent.left = tmp;
+        else parent.right = tmp;
+
         return node;
     }
     /*************************      end BSTRemove       ***************************/
