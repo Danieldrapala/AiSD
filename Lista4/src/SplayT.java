@@ -1,44 +1,46 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 /** Class SplayTree **/
-public class SplayT
+public class SplayT  implements Tree
 {
-
-    public void load(Path p) {
+    @Override
+    public void load(File p) {
         String data = "";
 
         try {
-            data = new String(Files.readAllBytes(p));
+            data = new String(Files.readAllBytes(Paths.get(p.toURI())));
         } catch (IOException e) {
             e.printStackTrace();
         }
         for (String s: data.split("[\\p{P} \\s]")){
             if (s.equals("")) continue;
-            //insert(s);
+            insert(s);
         }
     }
+    @Override
+    public boolean isEmpty() {
+        return root==null;
+    }
+
 
     class SplayNode
     {
         SplayNode left, right, parent;
-        int element;
+        String element;
 
-        /** Constructor **/
         public SplayNode()
         {
-            this(0, null, null, null);
+            this("", null, null, null);
         }
-        /** Constructor **/
-        public SplayNode(int ele)
+        public SplayNode(String ele)
         {
             this(ele, null, null, null);
         }
-        /** Constructor **/
-        public SplayNode(int ele, SplayNode left, SplayNode right, SplayNode parent)
+        public SplayNode(String ele, SplayNode left, SplayNode right, SplayNode parent)
         {
             this.left = left;
             this.right = right;
@@ -57,28 +59,16 @@ public class SplayT
         root = null;
     }
 
-    /** Function to check if tree is empty **/
-    public boolean isEmpty()
-    {
-        return root == null;
-    }
-
-    /** clear tree **/
-    public void clear()
-    {
-        root = null;
-        count = 0;
-    }
 
     /** function to insert element */
-    public void insert(int ele)
+    public void insert(String ele)
     {
         SplayNode z = root;
         SplayNode p = null;
         while (z != null)
         {
             p = z;
-            if (ele > p.element)
+            if (ele.compareTo(p.element) > 0)
                 z = z.right;
             else
                 z = z.left;
@@ -88,7 +78,7 @@ public class SplayT
         z.parent = p;
         if (p == null)
             root = z;
-        else if (ele > p.element)
+        else if (ele.compareTo(p.element) > 0)
             p.right = z;
         else
             p.left = z;
@@ -184,8 +174,9 @@ public class SplayT
         root = x;
     }
 
-    /** function to remove element **/
-    public void remove(int ele)
+@Override
+
+    public void delete(String ele)
     {
         SplayNode node = findNode(ele);
         remove(node);
@@ -237,23 +228,23 @@ public class SplayT
     }
 
     /** Functions to search for an element **/
-    public boolean search(int val)
+    public boolean search(String val)
     {
         return findNode(val) != null;
     }
 
-    private SplayNode findNode(int ele)
+    private SplayNode findNode(String ele)
     {
         SplayNode PrevNode = null;
         SplayNode z = root;
         while (z != null)
         {
             PrevNode = z;
-            if (ele > z.element)
+            if (ele.compareTo(z.element) > 0)
                 z = z.right;
-            else if (ele < z.element)
+            else if (ele.compareTo(z.element) < 0)
                 z = z.left;
-            else if(ele == z.element) {
+            else if(ele.compareTo( z.element) ==0) {
                 Splay(z);
                 return z;
             }
@@ -267,8 +258,8 @@ public class SplayT
         return null;
     }
 
-    /** Function for inorder traversal **/
-    public void inorder()
+@Override
+public void inOrder()
     {
         inorder(root);
     }

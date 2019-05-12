@@ -2,21 +2,25 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
-public class BTS {
+public class BTS implements Tree{
 
-    public void load(Path p) {
+    public long  count =0;
+
+    @Override
+    public void load(File p) {
         String data = "";
 
         try {
-            data = new String(Files.readAllBytes(p));
+            data = new String(Files.readAllBytes(Paths.get(p.toURI())));
         } catch (IOException e) {
             e.printStackTrace();
         }
         for (String s: data.split("[\\p{P} \\s]")){
             if (s.equals("")) continue;
-                insert(s);
+            insert(s);
         }
     }
 
@@ -32,11 +36,10 @@ public class BTS {
         }
     }
     private BTSNode root = null;      // korzeń naszego drzewa
-    private class TreeException extends Throwable {
-        TreeException() {}
-        TreeException(String msg) { super(msg); }
-    }
+
     /* Dodawanie elementów */
+    @Override
+
     public void insert(String val) {
         while(!Pattern.matches("[a-zA-Z]",String.valueOf(val.charAt(0)))||!Pattern.matches("[a-zA-Z]",String.valueOf(val.charAt(val.length()-1)))) {
             if (!Pattern.matches("[a-zA-Z]", String.valueOf(val.charAt(0))))
@@ -62,25 +65,48 @@ public class BTS {
                     parent.right.parent = parent;
                 }
             }
+            count++;
         }
     /**********************     end BSTInsert       *******************************/
 
     /* Wyszukiwanie elementu */
-    public BTSNode search(String val )   throws TreeException{
+    @Override
+
+
+    public boolean search(String val)
+    {
+        return find(val) != null;
+    }
+
+    public BTSNode find(String val ){
         BTSNode actual = root;
         while(actual != null && actual.value.equals(val))
             actual = (actual.value.compareTo(val) >0) ? actual.left : actual.right;
         if(actual == null)
-            throw new TreeException("Not Found Key");
+            return null;
         return actual;
     }
     /* Usuwanie elementu */
-    public BTSNode remove(String val ) throws TreeException {
-        BTSNode node = this.search(val);
+    @Override
+    public void delete(String val ) {
+        BTSNode node = this.find(val);
+        if(node!=null&& root!=null)
+            remove(node);
+
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return root==null;
+    }
+
+
+    public BTSNode remove(BTSNode node )  {
+
         BTSNode parent = node.parent;
         BTSNode tmp;
         if(node.left != null && node.right != null) {
-            tmp = this.remove(this.successor(val).value);
+            tmp = this.remove(this.successor(node.value));
             tmp.left = node.left;
             if(tmp.left != null)
                 tmp.left.parent = tmp;
@@ -99,19 +125,26 @@ public class BTS {
         return node;
     }
     /*************************      end BSTRemove       ***************************/
+    @Override
+
+    public void inOrder() {
+            printInOrderAllNodes(root);
+    }
+
+
 
     /*  InOrder */
-    public void inOrder(BTSNode node) {
+    public void printInOrderAllNodes(BTSNode node) {
         if(node != null) {
-            inOrder(node.left);
+            printInOrderAllNodes(node.left);
             System.out.print(node.value + ", ");
-            inOrder(node.right);
+            printInOrderAllNodes(node.right);
         }
     }
 /*************************      end InOrder         ***************************/
 /*  Znajdowanie następnika  */
-private BTSNode successor(String val) throws TreeException {
-    BTSNode node = this.search(val);
+private BTSNode successor(String val)   {
+    BTSNode node = this.find(val);
 // Szukanie następnika gdy węzeł ma prawego potomka
     if(node.right != null) {
         node = node.right;
@@ -127,7 +160,7 @@ private BTSNode successor(String val) throws TreeException {
         return parent;
     }
     else
-        throw new TreeException("Not Found Successor");
+    return null;
 }
 /*********************      end BST Successor       ***************************/
 
