@@ -4,10 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
-public class BTS implements Trees{
+public class BTS {
 
-
-    @Override
     public void load(Path p) {
         String data = "";
 

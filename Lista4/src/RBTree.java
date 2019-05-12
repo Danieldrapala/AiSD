@@ -30,7 +30,7 @@ class RedBlackNode
 }
 
 /* Class RBTree */
-public class RBTree implements Trees
+public class RBTree
 {
     private RedBlackNode current;
     private RedBlackNode parent;
@@ -227,7 +227,7 @@ public class RBTree implements Trees
         }
     }
 
-    @Override
+
     public void load(Path p) {
 
             String data = "";

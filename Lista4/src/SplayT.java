@@ -5,9 +5,9 @@ import java.nio.file.Path;
 
 
 /** Class SplayTree **/
-public class SplayT implements Trees
+public class SplayT
 {
-    @Override
+
     public void load(Path p) {
         String data = "";
 
