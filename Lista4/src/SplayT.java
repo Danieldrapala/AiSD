@@ -2,29 +2,41 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 
 /** Class SplayTree **/
 public class SplayT  implements Tree
 {
     @Override
-    public void load(File p) {
-        String data = "";
+    public void load(ArrayList<String> s) {
 
-        try {
-            data = new String(Files.readAllBytes(Paths.get(p.toURI())));
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String o: s){
+            insert(o);
         }
-        for (String s: data.split("[\\p{P} \\s]")){
-            if (s.equals("")) continue;
-            insert(s);
+    }
+    @Override
+    public void loadSearch(ArrayList<String> s) {
+        for (String o: s){
+            search(o);
+        }
+
+
+    }
+
+    @Override
+    public void loadDelete(ArrayList<String> s ) {
+
+        for (String o : s) {
+            delete(o);
         }
     }
     @Override
     public boolean isEmpty() {
         return root==null;
     }
+
+
 
 
     class SplayNode
@@ -60,30 +72,32 @@ public class SplayT  implements Tree
     }
 
 
-    /** function to insert element */
+    @Override
     public void insert(String ele)
     {
-        SplayNode z = root;
-        SplayNode p = null;
-        while (z != null)
-        {
-            p = z;
-            if (ele.compareTo(p.element) > 0)
-                z = z.right;
+        if (!ele .equals("")) {
+
+            SplayNode z = root;
+            SplayNode p = null;
+            while (z != null) {
+                p = z;
+                if (ele.compareTo(p.element) > 0)
+                    z = z.right;
+                else
+                    z = z.left;
+            }
+            z = new SplayNode();
+            z.element = ele;
+            z.parent = p;
+            if (p == null)
+                root = z;
+            else if (ele.compareTo(p.element) > 0)
+                p.right = z;
             else
-                z = z.left;
+                p.left = z;
+            Splay(z);
+            count++;
         }
-        z = new SplayNode();
-        z.element = ele;
-        z.parent = p;
-        if (p == null)
-            root = z;
-        else if (ele.compareTo(p.element) > 0)
-            p.right = z;
-        else
-            p.left = z;
-        Splay(z);
-        count++;
     }
     /** rotate **/
     public void makeLeftChildParent(SplayNode c, SplayNode p)
@@ -227,7 +241,8 @@ public class SplayT  implements Tree
         return count;
     }
 
-    /** Functions to search for an element **/
+@Override
+
     public boolean search(String val)
     {
         return findNode(val) != null;
