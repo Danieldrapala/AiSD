@@ -9,29 +9,70 @@ import java.util.regex.Pattern;
 public class BST implements Tree{
 
     public long  count =0;
+    public long  max =0;
 
+    public long  insertOperation=0;
+    public long deleteOperation=0;
+    public long searchOperation=0;
+    public long counterMOD = 0;
+    public long counterIF = 0;
     @Override
-    public void load(ArrayList<String> s) {
+    public void printCounters(){
+        System.out.println("counterMOD number: "+counterMOD);
+        System.out.println("counterIF number: "+counterIF);
 
-        for (String o: s){
-            insert(o);
-        }
     }
     @Override
-    public void loadSearch(ArrayList<String> s) {
-        for (String o: s){
-            search(o);
-        }
 
-
+    public void zerocounters(){
+        counterIF=0;
+        counterMOD=0;
     }
 
     @Override
-    public void loadDelete(ArrayList<String> s ) {
+    public void printOperations() {
+        System.out.println("insertOperations number: "+insertOperation);
+        System.out.println("searchOperations number: "+searchOperation);
+        System.out.println("deleteOperations number: "+deleteOperation);
+        System.out.println("actual number of nodes number: "+count);
+        System.out.println("max number of nodes number: "+max);
+    }
 
+    public  boolean myEquals(String nr1,String nr2){
+        counterIF++;
+        return nr1.equals(nr2);
+    }
+    public int comparingTo(String nr1,String nr2){
+        counterIF++;
+        return nr1.compareTo(nr2);
+    }
+    @Override
+    public void load(ArrayList<String> s,int mod) {
+        if(mod==0) {
+            for (String o : s) {
+                 insert(o);
+            }
+        }
+
+
+
+    }
+    @Override
+    public void loadSearch(ArrayList<String> s,int mod) {
+       if(mod==0) {
+           for (String o : s) {
+               search(o);
+           }
+       }
+    }
+
+    @Override
+    public void loadDelete(ArrayList<String> s,int mod) {
+        if(mod==0){
         for (String o : s) {
             delete(o);
         }
+    }
     }
 
     private class BTSNode
@@ -51,118 +92,106 @@ public class BST implements Tree{
 
     /* Dodawanie elementów */
     @Override
-
     public void insert(String val) {
-        String value = val;
-        if (!value.equals("") ) {
+
             if (root == null)
-                root = new BTSNode(value);
+                root = new BTSNode(val);
             else {
                 BTSNode actual = root;
                 BTSNode parent = null;
                 while (actual != null) {
                     parent = actual;
-                    actual = (actual.value.compareTo(value) > 0) ? actual.left : actual.right;
+                    actual = (comparingTo(actual.value,val) > 0) ? actual.left : actual.right;
                 }
-                if (parent.value.compareTo(value) > 0) { // actual zmiana
-                    parent.left = new BTSNode(value);
+
+                if (comparingTo(parent.value,val) > 0) { // actual zmiana
+                    parent.left = new BTSNode(val);
                     parent.left.parent = parent;
                 } else {
-                    parent.right = new BTSNode(value);
+                    parent.right = new BTSNode(val);
                     parent.right.parent = parent;
                 }
             }
             count++;
-        }
+            if(count>max){
+                max=count;
+            }
+        insertOperation++;
     }
-    /**********************     end BSTInsert       *******************************/
 
-    /* Wyszukiwanie elementu */
     @Override
-
-
     public boolean search(String val)
     {
 
         return find(root,val) != null;
     }
     private BTSNode find(BTSNode x, String value) {
-        while (x != null && !(value.equals(x.value))) {
-            if (value.compareTo(x.value) < 0) {
+        while (x != null && !(myEquals(value,x.value))) {
+            if ( comparingTo(value,x.value) < 0) {
                 x = x.left;
             } else x = x.right;
         }
+        searchOperation++;
         return x;
     }
-
-    /* Usuwanie elementu */
     @Override
     public void delete(String val ) {
-        if(!val.equals("")) {
-
-            BTSNode node = this.find(root, val);
-            if (node != null && root != null)
-                remove(node);
-            else
-                System.out.println("Nie ma takiego ciagu znaków");
-
+        BTSNode node = this.find(root, val);
+        if (node != null && root != null) {
+            remove(node);
+            count--;
         }
+        else
+            System.out.println("Nie ma takiego ciagu znaków");
     }
-
     @Override
     public boolean isEmpty() {
         return root==null;
     }
-
-
-
-
-
 
     public BTSNode remove(BTSNode node )  {
 
         BTSNode parent = node.parent;
         BTSNode tmp;
         if (node.left != null && node.right != null) {
-            tmp = this.remove(this.successor(node.value));
+            tmp = this.remove(this.successor(node));
             tmp.left = node.left;
-            if (tmp.left != null)
+            if (tmp.left != null){
                 tmp.left.parent = tmp;
+                counterMOD++;
+            }
             tmp.right = node.right;
-            if (tmp.right != null)
+            if (tmp.right != null) {
                 tmp.right.parent = tmp;
+                counterMOD++;
+            }
         } else tmp = (node.left != null) ? node.left : node.right;
 
         if (tmp != null) tmp.parent = parent;
-
         if (parent == null) root = tmp;
         else if (parent.left == node) parent.left = tmp;
         else parent.right = tmp;
-
+        counterMOD++;
+        deleteOperation++;
     return node;
 
     }
-    /*************************      end BSTRemove       ***************************/
     @Override
 
     public void inOrder() {
             printInOrderAllNodes(root);
     }
 
-
-
     /*  InOrder */
     public void printInOrderAllNodes(BTSNode node) {
         if(node != null) {
             printInOrderAllNodes(node.left);
-            System.out.print(node.value + ", ");
+            System.out.println(node.value );
             printInOrderAllNodes(node.right);
         }
     }
-/*************************      end InOrder         ***************************/
 /*  Znajdowanie następnika  */
-private BTSNode successor(String val)   {
-    BTSNode node = this.find(root,val);
+private BTSNode successor(BTSNode node)   {
 // Szukanie następnika gdy węzeł ma prawego potomka
     if(node.right != null) {
         node = node.right;
@@ -171,16 +200,15 @@ private BTSNode successor(String val)   {
         return node;
     }
 // Szukanie następnika gdy węzeł nie ma prawgo potomka
-    else if(node.right == null && node != root && node != this.max(root)) {
+    else if( node != root && node != this.max(root)) {
         BTSNode parent = node.parent;
-        while(parent != root && parent.value.compareTo(node.value)<0)
+        while(parent != root &&comparingTo( parent.value,node.value)<0)
             parent = parent.parent;
         return parent;
     }
     else
     return null;
 }
-/*********************      end BST Successor       ***************************/
 
 // Znajdowanie minimalnego klucza
 private BTSNode max(BTSNode node) {
@@ -188,6 +216,5 @@ private BTSNode max(BTSNode node) {
         node = node.right;
     return node;
 }
-/**********************     end BST MAX     ***********************************/
 
 }

@@ -9,7 +9,11 @@ class Graph {
         int V, E;
         Edge edge[];
         int [][] matrix;
+    List<List<Edge>> adjacencyLists;
+    boolean[] marked;
+    Edge result[];
 
+    PriorityQueue<Edge> pq;
         Graph(int v, int e) {
             V = v;
             E = e;
@@ -17,11 +21,12 @@ class Graph {
             for (int i = 0; i < e; ++i)
                 edge[i] = new Edge();
             matrix=new int [V][V];
-            this.adjacencyLists = (List<Edge>[]) new List[v];
+            this.adjacencyLists =  new ArrayList<>();
             for (int i = 0; i < v; i++) {
-                adjacencyLists[i] = new ArrayList<Edge>();
+                adjacencyLists.add(new LinkedList<>());
             }
         }
+
      int find(subset subsets[], int i) {
             // find root and make root as parent of i (path compression)
             if (subsets[i].parent != i)
@@ -103,24 +108,21 @@ class Graph {
         }
 
 
-    List<Edge>[] adjacencyLists;
-    boolean[] marked;
-    Edge result[];
-    PriorityQueue<Edge> pq;
+
 
     public void addEdge(Edge edge) {
         int v = edge.getEitherVertex();
         int w = edge.getOtherVertex(v);
-        adjacencyLists[v].add(edge);
-        adjacencyLists[w].add(edge);
+        adjacencyLists.get(v).add(edge);
+        adjacencyLists.get(w).add(edge);
     }
     public void addEdgeoneway(Edge edge) {
         int v = edge.getEitherVertex();
         int w = edge.getOtherVertex(v);
-        adjacencyLists[v].add(edge);
+        adjacencyLists.get(v).add(edge);
     }
-    public Iterable<Edge> getAdjacencyList(int v) {
-        return adjacencyLists[v];
+    public List<List<Edge>>  getAdjacencyList() {
+        return adjacencyLists;
     }
 
 
@@ -164,12 +166,15 @@ class Graph {
             private void visit( int v) {
                 marked[v] = true;
 
-                for (Edge edge : getAdjacencyList(v)) {
+                for (Edge edge : getAdjacencyList().get(v)) {
                     if (!marked[edge.getOtherVertex(v)]) {
                         pq.offer(edge);
                     }
                 }
         }
+
+
+
     int dist[];
     ArrayList<Integer> settled=new ArrayList<Integer>();
     Priority_Queue pq1;
@@ -209,8 +214,8 @@ class Graph {
         int newDistance = -1;
 
         // All the neighbors of v
-        for (int i = 0; i < adjacencyLists[u].size(); i++) {
-            Edge v = adjacencyLists[u].get(i);
+        for (int i = 0; i < adjacencyLists.get(u).size(); i++) {
+            Edge v = adjacencyLists.get(u).get(i);
 
             // If current node hasn't already been processed
             if (!settled.contains(v.getOtherVertex(u))) {

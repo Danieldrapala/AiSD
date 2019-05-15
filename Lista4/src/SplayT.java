@@ -8,27 +8,38 @@ import java.util.ArrayList;
 /** Class SplayTree **/
 public class SplayT  implements Tree
 {
-    @Override
-    public void load(ArrayList<String> s) {
+    public long  count =0;
+    public long  max =0;
 
-        for (String o: s){
-            insert(o);
+    public long  insertOperation=0;
+    public long deleteOperation=0;
+    public long searchOperation=0;
+    public long counterMOD = 0;
+    public long counterIF = 0;
+    @Override
+    public void load(ArrayList<String> s,int mod) {
+        if(mod==0) {
+            for (String o : s) {
+                insert(o);
+            }
         }
+
     }
     @Override
-    public void loadSearch(ArrayList<String> s) {
-        for (String o: s){
-            search(o);
+    public void loadSearch(ArrayList<String> s,int mod) {
+        if(mod==0) {
+            for (String o : s)
+                search(o);
         }
-
 
     }
 
     @Override
-    public void loadDelete(ArrayList<String> s ) {
-
-        for (String o : s) {
-            delete(o);
+    public void loadDelete(ArrayList<String> s,int mod) {
+        if(mod==0){
+            for (String o : s) {
+                delete(o);
+            }
         }
     }
     @Override
@@ -48,10 +59,6 @@ public class SplayT  implements Tree
         {
             this("", null, null, null);
         }
-        public SplayNode(String ele)
-        {
-            this(ele, null, null, null);
-        }
         public SplayNode(String ele, SplayNode left, SplayNode right, SplayNode parent)
         {
             this.left = left;
@@ -63,7 +70,6 @@ public class SplayT  implements Tree
     }
 
     private SplayNode root;
-    private int count = 0;
 
     /** Constructor **/
     public SplayT()
@@ -71,17 +77,45 @@ public class SplayT  implements Tree
         root = null;
     }
 
+    public  boolean myEquals(String nr1,String nr2){
+        counterIF++;
+        return nr1.equals(nr2);
+    }
+    public int comparingTo(String nr1,String nr2){
+        counterIF++;
+        return nr1.compareTo(nr2);
+    }
+    @Override
+    public void printCounters(){
+        System.out.println("counterMOD number: "+counterMOD);
+        System.out.println("counterIF number: "+counterIF);
+
+    }
+    @Override
+
+    public void zerocounters(){
+        counterIF=0;
+        counterMOD=0;
+    }
+
+    @Override
+    public void printOperations() {
+        System.out.println("insertOperations number: "+insertOperation);
+        System.out.println("searchOperations number: "+searchOperation);
+        System.out.println("deleteOperations number: "+deleteOperation);
+        System.out.println("actual number of nodes number: "+count);
+        System.out.println("max number of nodes number: "+max);
+    }
 
     @Override
     public void insert(String ele)
     {
-        if (!ele .equals("")) {
 
             SplayNode z = root;
             SplayNode p = null;
             while (z != null) {
                 p = z;
-                if (ele.compareTo(p.element) > 0)
+                if (comparingTo(ele,p.element) > 0)
                     z = z.right;
                 else
                     z = z.left;
@@ -91,12 +125,15 @@ public class SplayT  implements Tree
             z.parent = p;
             if (p == null)
                 root = z;
-            else if (ele.compareTo(p.element) > 0)
+            else if (comparingTo(ele,p.element) > 0)
                 p.right = z;
             else
                 p.left = z;
             Splay(z);
             count++;
+            insertOperation++;
+        if(count>max){
+            max=count;
         }
     }
     /** rotate **/
@@ -119,6 +156,7 @@ public class SplayT  implements Tree
         p.parent = c;
         p.left = c.right;
         c.right = p;
+        counterMOD+=3;
     }
 
     /** rotate **/
@@ -139,6 +177,8 @@ public class SplayT  implements Tree
         p.parent = c;
         p.right = c.left;
         c.left = p;
+        counterMOD+=3;
+
     }
 
     /** function splay **/
@@ -199,6 +239,8 @@ public class SplayT  implements Tree
     /** function to remove node **/
     private void remove(SplayNode node)
     {
+        deleteOperation++;
+
         if (node == null)
             return;
 
@@ -213,6 +255,7 @@ public class SplayT  implements Tree
             node.right.parent = min;
             node.left.parent = null;
             root = node.left;
+            counterMOD++;
         }
         else if (node.right != null)
         {
@@ -235,11 +278,6 @@ public class SplayT  implements Tree
         count--;
     }
 
-    /** Functions to count number of nodes **/
-    public int countNodes()
-    {
-        return count;
-    }
 
 @Override
 
@@ -250,16 +288,18 @@ public class SplayT  implements Tree
 
     private SplayNode findNode(String ele)
     {
+        searchOperation++;
         SplayNode PrevNode = null;
         SplayNode z = root;
         while (z != null)
         {
             PrevNode = z;
-            if (ele.compareTo(z.element) > 0)
+            int condition=comparingTo(ele,z.element);
+            if ( condition> 0)
                 z = z.right;
-            else if (ele.compareTo(z.element) < 0)
+            else if (condition < 0)
                 z = z.left;
-            else if(ele.compareTo( z.element) ==0) {
+            else  {
                 Splay(z);
                 return z;
             }

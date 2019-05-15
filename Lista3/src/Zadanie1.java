@@ -40,6 +40,7 @@ public class Zadanie1 {
                 case "priority":
                      v=scanner.nextInt();
                      p =scanner.nextInt();
+                     pq.changePriority(v,p);
             }
             i++;
         }

@@ -1,3 +1,6 @@
+import java.util.Arrays;
+
+
 
 class Item{
     int vertex;
@@ -38,6 +41,7 @@ class Item{
     // A class to represent a subset for union-find
 
         void push(Edge e){
+            if (heapSize < heap1.length) {
             int i,j;
             i=++heapSize;
             j=i/2;
@@ -47,6 +51,11 @@ class Item{
                 j=i/2;
             }
             heap1[i]=e;
+        }
+            else{
+                this.heap1= Arrays.copyOf(heap1,2*heap1.length);
+                push(e);
+            }
         }
         Edge popMaxEdge(){
             Edge h=heap1[1];
@@ -104,16 +113,24 @@ class Item{
             minheapify(1,true);
             return h.vertex;
         }
-        int[] getIdexes(int val){
-            Item[] helper=new Item[heapSize];
 
-        return new int[1];
-        }
 
-        void changePrio(int val,int prio){
-            int[] idx=getIdexes(val);
 
-        }
+     public void changePriority(int x, int p) {
+         if (!isEmpty()) {
+             int k;
+             for (int i = 1; i < heapSize; i++)
+                 if (heap[i].get_value() == x && heap[i].get_prio() > p) {
+                     heap[i].weight=p;
+                     k = i;
+                     while (k != 0 && heap[k/2].get_prio() > heap[k].get_prio()) {
+                         swap(k/2, k,true);
+                         k = k/2;
+                     }
+
+                 }
+         }
+     }
         void minheapify( int i,boolean Item){
             int left = i * 2 ;
             int right = i * 2 + 1;

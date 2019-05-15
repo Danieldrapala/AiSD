@@ -19,6 +19,44 @@ class Node {
 
 public class RBT implements Tree{
 
+    public long  count =0;
+    public long  max =0;
+
+    public long  insertOperation=0;
+    public long deleteOperation=0;
+    public long searchOperation=0;
+    public long counterMOD = 0;
+    public long counterIF = 0;
+
+    public  boolean myEquals(String nr1,String nr2){
+        counterIF++;
+        return nr1.equals(nr2);
+    }
+    public int comparingTo(String nr1,String nr2){
+        counterIF++;
+        return nr1.compareTo(nr2);
+    }
+    @Override
+    public void printCounters(){
+        System.out.println("counterMOD number: "+counterMOD);
+        System.out.println("counterIF number: "+counterIF);
+
+    }
+    @Override
+
+    public void zerocounters(){
+        counterIF=0;
+        counterMOD=0;
+    }
+
+    @Override
+    public void printOperations() {
+        System.out.println("insertOperations number: "+insertOperation);
+        System.out.println("searchOperations number: "+searchOperation);
+        System.out.println("deleteOperations number: "+deleteOperation);
+        System.out.println("actual number of nodes number: "+count);
+        System.out.println("max number of nodes number: "+max);
+    }
 
     private static final Node NIL = new Node(false);
     private Node root;
@@ -35,20 +73,18 @@ public class RBT implements Tree{
     }
     @Override
     public void insert(String key) {
-        if(!key.equals("")) {
-            Node z = new Node(key);
-            insert(z);
+        Node z = new Node(key);
+        insert(z);
+        if(count>max){
+            max=count;
         }
-
     }
 
     @Override
 
     public boolean search(String val)
     {
-
             return find(root, val) != null;
-
     }
 
     @Override
@@ -71,29 +107,30 @@ public class RBT implements Tree{
     }
 
     @Override
-    public void load(ArrayList<String> s) {
+    public void load(ArrayList<String> s,int mod) {
+        if(mod==0) {
+            for (String o : s) {
+                insert(o);
+            }
+        }
 
-        for (String o: s){
-            insert(o);
+    }
+    @Override
+    public void loadSearch(ArrayList<String> s,int mod) {
+        if(mod==0){
+            for (String o: s){
+                search(o);
+            }
         }
     }
     @Override
-    public void loadSearch(ArrayList<String> s) {
-        for (String o: s){
-            search(o);
-        }
-
-
-    }
-
-    @Override
-    public void loadDelete(ArrayList<String> s ) {
-
-        for (String o : s) {
-            delete(o);
+    public void loadDelete(ArrayList<String> s,int mod) {
+        if (mod == 0) {
+            for (String o : s) {
+                delete(o);
+            }
         }
     }
-
 
     Node minimum(Node x) {
         while (!(x.left == NIL)) {
@@ -103,13 +140,14 @@ public class RBT implements Tree{
     }
 
     Node find(Node x, String k) {
-        while (x != NIL && !(k.equals(x.key))) {
-            if (k.compareTo(x.key) < 0) {
+        while (x != NIL && !(myEquals(k,x.key))) {
+            if (comparingTo(k,x.key) < 0) {
                 x = x.left;
             } else {
                 x = x.right;
             }
         }
+        searchOperation++;
         return x;
     }
 
@@ -129,6 +167,8 @@ public class RBT implements Tree{
         }
         y.left = x;
         x.parent = y;
+        counterMOD+=2;
+
     }
 
     void rightRotate(Node x) {
@@ -147,6 +187,8 @@ public class RBT implements Tree{
         }
         y.right = x;
         x.parent = y;
+        counterMOD+=2;
+
     }
 
     void insert(Node z) {
@@ -155,7 +197,7 @@ public class RBT implements Tree{
 
             while (!(x == NIL)) {
                 y = x;
-                if (z.key.compareTo(x.key) < 0) {
+                if (comparingTo(z.key,x.key) < 0) {
                     x = x.left;
                 } else {
                     x = x.right;
@@ -164,7 +206,7 @@ public class RBT implements Tree{
             z.parent = y;
             if (y == NIL) {
                 root = z;
-            } else if (z.key.compareTo(y.key) < 0) {
+            } else if (comparingTo(z.key,y.key) < 0) {
                 y.left = z;
             } else {
                 y.right = z;
@@ -173,7 +215,8 @@ public class RBT implements Tree{
             z.right = NIL;
             z.color = true;
             insertFixUP(z);
-
+            insertOperation++;
+            count++;
     }
 
     void insertFixUP(Node z) {
@@ -256,6 +299,8 @@ public class RBT implements Tree{
         if (!yColor) {
             deleteFixUp(x);
         }
+        deleteOperation++;
+        count--;
     }
 
     void deleteFixUp(Node x) {
